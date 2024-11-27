@@ -1,0 +1,49 @@
+-- -- Table: authorities
+-- CREATE TABLE authorities (
+--     name VARCHAR(255) NOT NULL PRIMARY KEY
+-- );
+--
+-- -- Table: users
+-- CREATE TABLE users (
+--                        id BIGINT AUTO_INCREMENT PRIMARY KEY,
+--                        username VARCHAR(255) NOT NULL UNIQUE,
+--                        password VARCHAR(255) NOT NULL
+-- );
+--
+-- -- Table: user_authorities
+-- CREATE TABLE user_authorities (
+--                                   user_id BIGINT NOT NULL,
+--                                   authority_name VARCHAR(255) NOT NULL,
+--                                   PRIMARY KEY (user_id, authority_name),
+--                                   CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+--                                   CONSTRAINT fk_authority FOREIGN KEY (authority_name) REFERENCES authorities(name) ON DELETE CASCADE
+-- );
+--
+-- -- Table: admins
+-- CREATE TABLE admins (
+--                         id BIGINT AUTO_INCREMENT PRIMARY KEY,
+--                         username VARCHAR(255) NOT NULL,
+--                         email VARCHAR(255),
+--                         register_date TIMESTAMP,
+--                         update_date TIMESTAMP,
+--                         user_id BIGINT UNIQUE,
+--                         CONSTRAINT fk_user_admin FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+-- );
+-- -- Insert sample data into authorities
+-- INSERT INTO authorities (name) VALUES
+--                                    ('ADMIN'),
+--                                    ('USER');
+--
+-- -- Insert sample data into users
+-- INSERT INTO users (username, password) VALUES
+--                                            ('admin', '$2a$12$ZCyOlICBONKb5Gv.FC69dOAIoPHQ8U/5KqNPIydYoH2zqinvhAlfW'),
+--                                            ('user1', '$2a$12$ZCyOlICBONKb5Gv.FC69dOAIoPHQ8U/5KqNPIydYoH2zqinvhAlfW');
+--
+-- -- Assign authorities to users
+-- INSERT INTO user_authorities (user_id, authority_name) VALUES
+--                                                            (1, 'ADMIN'), -- admin1
+--                                                            (2, 'USER');  -- user1
+--
+-- -- Insert sample data into admins
+-- INSERT INTO admins (username, email, register_date, update_date, user_id) VALUES
+--     ('admin1', 'admin1@example.com', NOW(), NOW(), 1);
