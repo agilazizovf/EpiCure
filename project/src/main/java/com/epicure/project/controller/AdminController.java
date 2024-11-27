@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/admins")
 @RequiredArgsConstructor
 public class AdminController {
-
     private final AdminService adminService;
 
     @PostMapping("/register")

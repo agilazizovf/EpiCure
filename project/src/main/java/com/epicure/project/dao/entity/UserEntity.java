@@ -38,6 +38,10 @@ public class UserEntity implements UserDetails {
     private AdminEntity admin;
 
     @JsonIgnore
+    @OneToOne(mappedBy = "user")
+    private WaiterEntity waiter;
+
+    @JsonIgnore
     @ManyToMany
     @JoinTable(name = "user_authorities",
             joinColumns = {@JoinColumn(name = "user_id", referencedColumnName = "id")},
