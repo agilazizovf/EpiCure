@@ -1,93 +1,92 @@
 package com.epicure.project.configuration;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.jdbc.JdbcDaoImpl;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-
-import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.SQLException;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 
 @Configuration
-@EnableWebSecurity
 @RequiredArgsConstructor
+@Slf4j
 public class SecurityConfiguration {
 
-    @Autowired
-    private DataSource dataSource;
-
     @Bean
-    public UserDetailsService userDetailsService() {
-        JdbcDaoImpl jdbcDao = new JdbcDaoImpl();
-        jdbcDao.setDataSource(dataSource);
-        return jdbcDao;
-    }
-
-    @Bean
-    public CommandLineRunner testDataSource(DataSource dataSource) {
-        return args -> {
-            try (Connection connection = dataSource.getConnection()) {
-                System.out.println("Database connection is successful!");
-            } catch (SQLException e) {
-                System.err.println("Database connection failed: " + e.getMessage());
-            }
-        };
-    }
-
-
-    @Bean
-    public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService());
-        authProvider.setPasswordEncoder(passwordEncoder()); // Şifrələyicini əlavə edin
-        return authProvider;
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager() {
-        return new AuthenticationManager() {
-            @Override
-            public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-                return null;
-            }
-        };
-    }
-
-    @Bean
-    public BCryptPasswordEncoder passwordEncoder() {
+    public static BCryptPasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
     }
 
+    private final CustomUserDetailsService userDetailsService;
+    private final JwtAuthorizationFilter jwtAuthorizationFilter;
+
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http.csrf(csrf -> csrf.disable())
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // OPTIONS icazə
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll() // Swagger icazə
-                        .requestMatchers("/admins/**").permitAll() // /admins/** endpoint-i icazə
-                        .anyRequest().permitAll()) // Bütün digər çağırışlar təhlükəsizlikdən azad
-                .httpBasic().disable() // Basic Authentication-u deaktiv edin
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .headers(headers -> headers.frameOptions().disable())
-                .build();
+    public AuthenticationManager authenticationManager(HttpSecurity http, BCryptPasswordEncoder passwordEncoder)
+            throws Exception {
+        AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
+        authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder);
+        return authenticationManagerBuilder.build();
     }
 
 
+    @Bean
+    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.csrf(csrf->csrf.disable())
+                .addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(
+                        authorize -> authorize
+                                .requestMatchers(permitAllUrls).permitAll()
+                                .requestMatchers(adminUrls).hasAnyAuthority("ADMIN")
+                                .requestMatchers(waiterUrls).hasAnyAuthority("WAITER")
+                                .requestMatchers(anyAuthUrls).authenticated()
+//                                .anyRequest().authenticated()
+                ).exceptionHandling(exceptionHandling -> exceptionHandling
+                        .authenticationEntryPoint((request, response, authException) ->
+                                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED)
+                        )
+                        .accessDeniedHandler((request, response, accessDeniedException) ->
+                                response.setStatus(HttpServletResponse.SC_FORBIDDEN)
+                        )
+                );
+        return http.build();
+
+    }
+
+    // Url-leri qeyd ele
+    static String[] permitAllUrls = {
+            "/api/v1/auth/**",
+            "/v2/api-docs",
+            "/v3/api-docs",
+            "/v3/api-docs/**",
+            "/swagger-resources",
+            "/swagger-resources/**",
+            "/configuration/ui",
+            "/swagger-ui/**",
+            "/swagger-ui.html",
+            "/admins/**",
+            "/waiters/**",
+            "/meal-categories/**"
+    };
+
+    static String[] adminUrls = {
+            "/controller/admin"
+    };
+
+    static String[] waiterUrls = {
+            "/controller/client"
+    };
+
+    static String[] anyAuthUrls = {
+            "/controller/any"
+    };
 
 }
+

@@ -21,7 +21,7 @@ import java.util.Set;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserEntity implements UserDetails {
+public class UserEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,11 +31,16 @@ public class UserEntity implements UserDetails {
     @NotNull
     private String username;
 
+    @JsonIgnore
     private String password;
 
     @JsonIgnore
     @OneToOne(mappedBy = "user")
     private AdminEntity admin;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "user")
+    private List<MealCategoryEntity> category;
 
     @JsonIgnore
     @OneToOne(mappedBy = "user")
@@ -55,34 +60,5 @@ public class UserEntity implements UserDetails {
 
 
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority(authorities.toString()));
-    }
-
-    @Override
-    public String getPassword() {
-        return password;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
 
 }

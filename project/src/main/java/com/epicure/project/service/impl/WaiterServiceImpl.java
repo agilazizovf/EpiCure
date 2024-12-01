@@ -5,34 +5,47 @@ import com.epicure.project.dao.entity.UserEntity;
 import com.epicure.project.dao.entity.WaiterEntity;
 import com.epicure.project.dao.repository.UserRepository;
 import com.epicure.project.dao.repository.WaiterRepository;
+import com.epicure.project.dto.ExceptionDTO;
 import com.epicure.project.dto.exception.AlreadyExistsException;
-import com.epicure.project.dto.exception.ResourceNotFoundException;
 import com.epicure.project.dto.request.LoginRequest;
 import com.epicure.project.dto.request.WaiterRequest;
-import com.epicure.project.dto.response.JwtAuthenticationResponse;
+import com.epicure.project.dto.response.LoginResponse;
 import com.epicure.project.dto.response.MessageResponse;
-import com.epicure.project.service.JwtService;
+import com.epicure.project.dto.response.PageResponse;
+import com.epicure.project.dto.response.WaiterInfoResponse;
+import com.epicure.project.mapper.WaiterMapper;
 import com.epicure.project.service.WaiterService;
+import com.epicure.project.utility.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class WaiterServiceImpl implements WaiterService {
 
     private final WaiterRepository waiterRepository;
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
-    private final JwtService jwtService;
+    private final JwtUtil jwtUtil;
 
     @Override
     public ResponseEntity<MessageResponse> register(WaiterRequest request) {
@@ -68,14 +81,52 @@ public class WaiterServiceImpl implements WaiterService {
     }
 
     @Override
-    public JwtAuthenticationResponse login(LoginRequest request) {
-        authenticationManager.authenticate
-                (new UsernamePasswordAuthenticationToken(request.getUsername(),request.getPassword()));
-        var user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + request.getUsername()));
-        var jwt = jwtService.generateToken(user);
-        JwtAuthenticationResponse jwtAuthenticationResponse=new JwtAuthenticationResponse();
-        jwtAuthenticationResponse.setToken(jwt);
-        return jwtAuthenticationResponse;
+    public ResponseEntity<?> login(LoginRequest loginReq) {
+        log.info("authenticate method started by: {}", loginReq.getUsername());
+        try {
+            Authentication authentication =
+                    authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginReq.getUsername(),
+                            loginReq.getPassword()));
+            log.info("authentication details: {}", authentication);
+            String username = authentication.getName();
+            UserEntity client = new UserEntity(username,"");
+            String token = jwtUtil.createToken(client);
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + token);
+            LoginResponse loginRes = new LoginResponse(username,token);
+            log.info("user: {} logged in",  client.getUsername());
+            return ResponseEntity.status(HttpStatus.OK).headers(headers).body(loginRes);
+
+        }catch (BadCredentialsException e){
+            ExceptionDTO exceptionDTO = new ExceptionDTO(HttpStatus.BAD_REQUEST.value(),"Invalid username or password");
+            log.error("Error due to {} ", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exceptionDTO);
+        }catch (Exception e){
+            ExceptionDTO exceptionDTO = new ExceptionDTO(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+            log.error("Error due to {} ", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exceptionDTO);
+        }
+    }
+
+    @Override
+    public PageResponse<WaiterInfoResponse> getWaiters(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<WaiterEntity> waiterEntities = waiterRepository.findAll(pageable);
+
+        List<WaiterInfoResponse> waiterInfoResponses = waiterEntities
+                .stream()
+                .map(WaiterMapper::toWaiterDTO)
+                .collect(Collectors.toList());
+
+        PageResponse<WaiterInfoResponse> pageResponse = new PageResponse<>();
+        pageResponse.setContent(waiterInfoResponses);
+        pageResponse.setPage(waiterEntities.getPageable().getPageNumber());
+        pageResponse.setSize(waiterEntities.getPageable().getPageSize());
+        pageResponse.setTotalElements(waiterEntities.getTotalElements());
+        pageResponse.setTotalPages(waiterEntities.getTotalPages());
+        pageResponse.setLast(waiterEntities.isLast());
+        pageResponse.setFirst(waiterEntities.isFirst());
+
+        return pageResponse;
     }
 }

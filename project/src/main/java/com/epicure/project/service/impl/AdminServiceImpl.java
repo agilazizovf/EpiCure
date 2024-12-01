@@ -5,38 +5,40 @@ import com.epicure.project.dao.entity.AuthorityEntity;
 import com.epicure.project.dao.entity.UserEntity;
 import com.epicure.project.dao.repository.AdminRepository;
 import com.epicure.project.dao.repository.UserRepository;
+import com.epicure.project.dto.ExceptionDTO;
 import com.epicure.project.dto.exception.AlreadyExistsException;
 import com.epicure.project.dto.exception.ResourceNotFoundException;
 import com.epicure.project.dto.request.AdminRequest;
 import com.epicure.project.dto.request.LoginRequest;
-import com.epicure.project.dto.response.JwtAuthenticationResponse;
+import com.epicure.project.dto.response.LoginResponse;
 import com.epicure.project.dto.response.MessageResponse;
 import com.epicure.project.service.AdminService;
-import com.epicure.project.service.JwtService;
+import com.epicure.project.utility.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AdminServiceImpl implements AdminService {
 
     private final AdminRepository adminRepository;
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
-    private final JwtService jwtService;
-
+    private final JwtUtil jwtUtil;
 
     @Override
     public ResponseEntity<MessageResponse> register(AdminRequest request) {
@@ -77,14 +79,30 @@ public class AdminServiceImpl implements AdminService {
 
 
     @Override
-    public JwtAuthenticationResponse login(LoginRequest request)throws IllegalArgumentException {
-        authenticationManager.authenticate
-                (new UsernamePasswordAuthenticationToken(request.getUsername(),request.getPassword()));
-        var user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with username: " + request.getUsername()));
-        var jwt = jwtService.generateToken(user);
-        JwtAuthenticationResponse jwtAuthenticationResponse=new JwtAuthenticationResponse();
-        jwtAuthenticationResponse.setToken(jwt);
-        return jwtAuthenticationResponse;
+    public ResponseEntity<?> login(LoginRequest loginReq)throws IllegalArgumentException {
+        log.info("authenticate method started by: {}", loginReq.getUsername());
+        try {
+            Authentication authentication =
+                    authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginReq.getUsername(),
+                            loginReq.getPassword()));
+            log.info("authentication details: {}", authentication);
+            String username = authentication.getName();
+            UserEntity client = new UserEntity(username, "");
+            String token = jwtUtil.createToken(client);
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.AUTHORIZATION, "Bearer " + token);
+            LoginResponse loginRes = new LoginResponse(username, token);
+            log.info("user: {} logged in", client.getUsername());
+            return ResponseEntity.status(HttpStatus.OK).headers(headers).body(loginRes);
+
+        } catch (BadCredentialsException e) {
+            ExceptionDTO exceptionDTO = new ExceptionDTO(HttpStatus.BAD_REQUEST.value(), "Invalid username or password");
+            log.error("Error due to {} ", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exceptionDTO);
+        } catch (Exception e) {
+            ExceptionDTO exceptionDTO = new ExceptionDTO(HttpStatus.BAD_REQUEST.value(), e.getMessage());
+            log.error("Error due to {} ", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exceptionDTO);
+        }
     }
 }

@@ -2,7 +2,6 @@ package com.epicure.project.controller;
 
 import com.epicure.project.dto.request.AdminRequest;
 import com.epicure.project.dto.request.LoginRequest;
-import com.epicure.project.dto.response.JwtAuthenticationResponse;
 import com.epicure.project.dto.response.MessageResponse;
 import com.epicure.project.service.AdminService;
 import jakarta.validation.Valid;
@@ -22,7 +21,7 @@ public class AdminController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<JwtAuthenticationResponse> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
         return ResponseEntity.ok(adminService.login(request));
     }
 }
