@@ -37,6 +37,7 @@ public class MealServiceImpl implements MealService {
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
 
+
     @Override
     public ResponseEntity<MessageResponse> create(MealRequest request) {
         UserEntity user = getCurrentUser();
@@ -88,7 +89,6 @@ public class MealServiceImpl implements MealService {
         modelMapper.map(meal, mealInfoResponse);
         mealInfoResponse.setAdmin(user.getAdmin());
 
-
         return ResponseEntity.status(HttpStatus.FOUND).body(mealInfoResponse);
     }
 
@@ -98,14 +98,15 @@ public class MealServiceImpl implements MealService {
         MealEntity meal = mealRepository.findById(mealId)
                 .orElseThrow(() -> new ResourceNotFoundException("Meal not found"));
 
+
         if (!meal.getUser().equals(user)) {
             throw new AuthenticationException("You are not authorized to update this meal.");
         }
         meal.setName(request.getName());
-        meal.setImage(request.getImage());
         meal.setPrice(request.getPrice());
         meal.setComposition(request.getComposition());
         meal.setSize(request.getSize());
+        meal.setImage(request.getImage());
         meal.setCategory(mealCategoryRepository.findById(request.getCategoryId())
                 .orElseThrow(() -> new ResourceNotFoundException("Category not found")));
         meal.setUser(user);

@@ -6,7 +6,7 @@ Rollar -> Admin, Waiter(ischi olaraq heleki budur), Client(tam melum deyil, masa
 1. Admin ozunu qeydiyyat edir +
 2. Admin ischileri qeydiyyat ede biler ve onlar haqqinda melumatlari izleyecek +
 3. Admin yemek ve yemek kateqoriyalarini qeydiyyat edecek + (sekilleri axirda elave ele)
-4. Admin gunluk, heftelik, ayliq ve illik geliri gore bilecek
+4. Admin gunluk, heftelik, ayliq ve illik geliri gore bilecek (sifarisden sonra olacaq)
 
 2) Waiter emeliyyatlari:
 1. Sifaris verilenden sonra ofisiant ekranda sifarisi tesdiq edecek

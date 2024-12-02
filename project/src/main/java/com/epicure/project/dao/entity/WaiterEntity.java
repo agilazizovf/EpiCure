@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "waiters")
@@ -23,6 +24,9 @@ public class WaiterEntity {
 
     private LocalDateTime hireDate;
     private LocalDateTime updateDate;
+
+    @OneToMany(mappedBy = "waiter", cascade = CascadeType.ALL)
+    private List<OrderEntity> orders;
 
     @OneToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "user_id", unique = true)

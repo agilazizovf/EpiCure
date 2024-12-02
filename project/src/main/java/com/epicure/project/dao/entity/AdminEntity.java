@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "admins")
@@ -28,4 +29,7 @@ public class AdminEntity {
     @OneToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "user_id", unique = true)
     private UserEntity user;
+
+    @OneToMany(mappedBy = "admin", cascade = CascadeType.ALL)
+    private List<TableEntity> tables;
 }
