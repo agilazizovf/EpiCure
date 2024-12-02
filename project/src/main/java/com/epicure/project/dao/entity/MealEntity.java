@@ -6,14 +6,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Entity
-@Table(name = "meal_categories")
+@Table(name = "meals")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class MealCategoryEntity {
+public class MealEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,16 +19,21 @@ public class MealCategoryEntity {
 
     private String name;
 
-    private String description;
+    private String composition;
 
     private String image;
 
+    private String size;
+
+    private double price;
+
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "category_id", nullable = false)
+    @JsonIgnore
+    private MealCategoryEntity category;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
     @JsonIgnore
     private UserEntity user;
-
-    @JsonIgnore
-    @OneToMany(mappedBy = "category")
-    private List<MealEntity> meals;
 }

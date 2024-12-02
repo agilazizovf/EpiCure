@@ -38,7 +38,7 @@ public class MealCategoryController {
         return mealCategoryService.update(categoryId, request);
     }
 
-    @DeleteMapping("/{categoryId}")
+    @DeleteMapping("/delete/{categoryId}")
     public void delete(@PathVariable Long categoryId) {
         mealCategoryService.delete(categoryId);
     }

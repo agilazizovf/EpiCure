@@ -16,6 +16,7 @@ public class MealCategoryMapper {
         if (entity.getUser() != null && entity.getUser().getAdmin() != null) {
             response.setAdmin(entity.getUser().getAdmin());
         }
+
         return response;
     }
 }

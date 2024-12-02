@@ -13,6 +13,7 @@ import com.epicure.project.dto.response.PageResponse;
 import com.epicure.project.mapper.MealCategoryMapper;
 import com.epicure.project.service.MealCategoryService;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -31,14 +32,13 @@ public class MealCategoryServiceImpl implements MealCategoryService {
 
     private final UserRepository userRepository;
     private final MealCategoryRepository mealCategoryRepository;
+    private final ModelMapper modelMapper;
     @Override
     public ResponseEntity<MessageResponse> create(MealCategoryRequest request) {
         UserEntity user = getCurrentUser();
 
         MealCategoryEntity category = new MealCategoryEntity();
-        category.setName(request.getName());
-        category.setDescription(request.getDescription());
-        category.setImage(request.getImage());
+        modelMapper.map(request, category);
         category.setUser(user);
 
         mealCategoryRepository.save(category);

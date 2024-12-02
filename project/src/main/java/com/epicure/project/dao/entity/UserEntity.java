@@ -43,6 +43,10 @@ public class UserEntity {
     private List<MealCategoryEntity> category;
 
     @JsonIgnore
+    @OneToMany(mappedBy = "user")
+    private List<MealEntity> meals;
+
+    @JsonIgnore
     @OneToOne(mappedBy = "user")
     private WaiterEntity waiter;
 
