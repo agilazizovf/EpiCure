@@ -4,7 +4,7 @@ package com.epicure.project.configuration;
 import com.epicure.project.dao.entity.AuthorityEntity;
 import com.epicure.project.dao.entity.UserEntity;
 import com.epicure.project.dao.repository.UserRepository;
-import com.epicure.project.dto.exception.ResourceNotFoundException;
+import com.epicure.project.model.exception.ResourceNotFoundException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;

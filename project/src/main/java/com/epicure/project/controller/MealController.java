@@ -1,9 +1,9 @@
 package com.epicure.project.controller;
 
-import com.epicure.project.dto.request.MealRequest;
-import com.epicure.project.dto.response.MealInfoResponse;
-import com.epicure.project.dto.response.MessageResponse;
-import com.epicure.project.dto.response.PageResponse;
+import com.epicure.project.model.dto.request.MealRequest;
+import com.epicure.project.model.dto.response.MealInfoResponse;
+import com.epicure.project.model.dto.response.MessageResponse;
+import com.epicure.project.model.dto.response.PageResponse;
 import com.epicure.project.service.MealService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

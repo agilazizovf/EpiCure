@@ -1,7 +1,7 @@
 package com.epicure.project.mapper;
 
 import com.epicure.project.dao.entity.WaiterEntity;
-import com.epicure.project.dto.response.WaiterInfoResponse;
+import com.epicure.project.model.dto.response.WaiterInfoResponse;
 
 public class WaiterMapper {
 

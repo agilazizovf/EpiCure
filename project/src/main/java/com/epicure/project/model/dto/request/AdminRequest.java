@@ -1,4 +1,4 @@
-package com.epicure.project.dto.request;
+package com.epicure.project.model.dto.request;
 
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;

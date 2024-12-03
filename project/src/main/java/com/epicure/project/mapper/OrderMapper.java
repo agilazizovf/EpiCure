@@ -1,7 +1,7 @@
 package com.epicure.project.mapper;
 
 import com.epicure.project.dao.entity.OrderEntity;
-import com.epicure.project.dto.response.OrderInfoResponse;
+import com.epicure.project.model.dto.response.OrderInfoResponse;
 
 public class OrderMapper {
 

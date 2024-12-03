@@ -1,9 +1,9 @@
 package com.epicure.project.controller;
 
-import com.epicure.project.dto.request.TableRequest;
-import com.epicure.project.dto.response.MessageResponse;
-import com.epicure.project.dto.response.PageResponse;
-import com.epicure.project.dto.response.TableInfoResponse;
+import com.epicure.project.model.dto.request.TableRequest;
+import com.epicure.project.model.dto.response.MessageResponse;
+import com.epicure.project.model.dto.response.PageResponse;
+import com.epicure.project.model.dto.response.TableInfoResponse;
 import com.epicure.project.service.TableService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

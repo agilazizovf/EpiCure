@@ -1,8 +1,8 @@
 package com.epicure.project.service;
 
-import com.epicure.project.dto.request.AdminRequest;
-import com.epicure.project.dto.request.LoginRequest;
-import com.epicure.project.dto.response.MessageResponse;
+import com.epicure.project.model.dto.request.AdminRequest;
+import com.epicure.project.model.dto.request.LoginRequest;
+import com.epicure.project.model.dto.response.MessageResponse;
 import org.springframework.http.ResponseEntity;
 
 public interface AdminService {

@@ -75,7 +75,8 @@ public class SecurityConfiguration {
             "/waiters/**",
             "/meal-categories/**",
             "/meals/**",
-            "/tables/**"
+            "/tables/**",
+            "/orders/**"
     };
 
     static String[] adminUrls = {

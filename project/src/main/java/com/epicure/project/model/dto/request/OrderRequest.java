@@ -1,11 +1,11 @@
-package com.epicure.project.dto.request;
+package com.epicure.project.model.dto.request;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Map;
 
 @Data
 public class OrderRequest {
@@ -22,6 +22,6 @@ public class OrderRequest {
     @NotNull(message = "Waiter ID must not be null")
     private Long waiterId;
 
-    @NotNull(message = "Meal IDs must not be null")
-    private List<Long> mealIds;
+    @NotNull(message = "Meals and their quantities must not be null")
+    private Map<Long, Integer> mealQuantities;
 }

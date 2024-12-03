@@ -1,4 +1,4 @@
-package com.epicure.project.dto.response;
+package com.epicure.project.model.dto.response;
 
 import com.epicure.project.dao.entity.AdminEntity;
 import lombok.Data;

@@ -1,4 +1,4 @@
-package com.epicure.project.dto.exception;
+package com.epicure.project.model.exception;
 
 public class AuthenticationException extends RuntimeException {
     public AuthenticationException(String message) {

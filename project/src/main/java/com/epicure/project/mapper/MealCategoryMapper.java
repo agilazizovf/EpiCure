@@ -1,7 +1,7 @@
 package com.epicure.project.mapper;
 
 import com.epicure.project.dao.entity.MealCategoryEntity;
-import com.epicure.project.dto.response.MealCategoryInfoResponse;
+import com.epicure.project.model.dto.response.MealCategoryInfoResponse;
 
 public class MealCategoryMapper {
 

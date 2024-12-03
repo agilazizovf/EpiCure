@@ -1,4 +1,4 @@
-package com.epicure.project.dto;
+package com.epicure.project.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

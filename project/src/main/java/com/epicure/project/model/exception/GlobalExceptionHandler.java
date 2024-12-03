@@ -1,7 +1,7 @@
-package com.epicure.project.dto.exception;
+package com.epicure.project.model.exception;
 
 
-import com.epicure.project.dto.ExceptionDTO;
+import com.epicure.project.model.ExceptionDTO;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;

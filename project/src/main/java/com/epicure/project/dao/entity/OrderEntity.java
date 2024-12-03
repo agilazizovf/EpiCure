@@ -1,6 +1,6 @@
 package com.epicure.project.dao.entity;
 
-import com.epicure.project.dto.enums.OrderStatus;
+import com.epicure.project.model.enums.OrderStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;

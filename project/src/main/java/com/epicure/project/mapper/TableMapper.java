@@ -1,7 +1,7 @@
 package com.epicure.project.mapper;
 
 import com.epicure.project.dao.entity.TableEntity;
-import com.epicure.project.dto.response.TableInfoResponse;
+import com.epicure.project.model.dto.response.TableInfoResponse;
 
 public class TableMapper {
 

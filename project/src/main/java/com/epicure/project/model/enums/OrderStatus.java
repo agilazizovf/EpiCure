@@ -1,4 +1,4 @@
-package com.epicure.project.dto.enums;
+package com.epicure.project.model.enums;
 
 public enum OrderStatus {
 

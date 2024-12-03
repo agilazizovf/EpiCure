@@ -1,4 +1,4 @@
-package com.epicure.project.dto.request;
+package com.epicure.project.model.dto.request;
 
 import lombok.Data;
 
