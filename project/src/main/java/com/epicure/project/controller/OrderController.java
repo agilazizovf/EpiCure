@@ -1,6 +1,7 @@
 package com.epicure.project.controller;
 
 import com.epicure.project.model.dto.request.OrderRequest;
+import com.epicure.project.model.dto.response.IncomeReportResponse;
 import com.epicure.project.model.dto.response.MessageResponse;
 import com.epicure.project.model.dto.response.OrderCheckResponse;
 import com.epicure.project.service.OrderService;
@@ -45,4 +46,13 @@ public class OrderController {
         return orderService.checkOrder(orderId);
     }
 
+    @GetMapping("/income-report")
+    public ResponseEntity<IncomeReportResponse> getIncomeReport() {
+        return ResponseEntity.ok(orderService.getIncomeReport());
+    }
+
+    @DeleteMapping("/delete/{orderId}")
+    public void delete(@PathVariable Long orderId) {
+        orderService.delete(orderId);
+    }
 }

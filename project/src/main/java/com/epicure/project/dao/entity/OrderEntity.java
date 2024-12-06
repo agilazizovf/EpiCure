@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Entity
 @Table(name = "orders")
@@ -29,6 +30,12 @@ public class OrderEntity {
     @ManyToOne
     @JoinColumn(name = "table_id", nullable = false)
     private TableEntity table;
+
+
+    @ElementCollection
+    @MapKeyColumn(name = "meal_id")
+    @Column(name = "quantity")
+    private Map<Long, Integer> mealQuantities;
 
     @ManyToOne
     @JoinColumn(name = "waiter_id", nullable = false)

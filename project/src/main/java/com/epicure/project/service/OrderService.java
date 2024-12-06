@@ -1,6 +1,7 @@
 package com.epicure.project.service;
 
 import com.epicure.project.model.dto.request.OrderRequest;
+import com.epicure.project.model.dto.response.IncomeReportResponse;
 import com.epicure.project.model.dto.response.MessageResponse;
 import com.epicure.project.model.dto.response.OrderCheckResponse;
 import org.springframework.http.ResponseEntity;
@@ -13,4 +14,6 @@ public interface OrderService {
     ResponseEntity<MessageResponse> serveOrder(Long orderId);
     ResponseEntity<MessageResponse> completeOrder(Long orderId);
     ResponseEntity<OrderCheckResponse> checkOrder(Long orderId);
+    IncomeReportResponse getIncomeReport();
+    void delete(Long orderId);
 }

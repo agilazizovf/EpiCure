@@ -9,6 +9,7 @@ import com.epicure.project.dao.repository.OrderRepository;
 import com.epicure.project.dao.repository.TableRepository;
 import com.epicure.project.dao.repository.WaiterRepository;
 import com.epicure.project.model.dto.request.OrderRequest;
+import com.epicure.project.model.dto.response.IncomeReportResponse;
 import com.epicure.project.model.dto.response.MessageResponse;
 import com.epicure.project.model.dto.response.OrderCheckResponse;
 import com.epicure.project.model.dto.response.OrderMealDetail;
@@ -21,6 +22,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -65,6 +68,7 @@ public class OrderServiceImpl implements OrderService {
         order.setTable(table);
         order.setWaiter(waiter);
         order.setMeals(meals);
+        order.setMealQuantities(mealQuantities);
         order.setTotalPrice(totalPrice);
         order.setStatus(OrderStatus.PENDING); // Default status for new orders
         orderRepository.save(order);
@@ -146,16 +150,71 @@ public class OrderServiceImpl implements OrderService {
         response.setTotalPrice(order.getTotalPrice());
 
         // Map meals and their quantities
-        Map<String, OrderMealDetail> mealDetails = order.getMeals().stream()
+        Map<String, OrderMealDetail> mealDetails = order.getMealQuantities().entrySet().stream()
                 .collect(Collectors.toMap(
-                        MealEntity::getName,
-                        meal -> new OrderMealDetail(meal.getPrice(), order.getMeals().stream()
-                                .filter(m -> m.equals(meal))
-                                .count())
+                        entry -> mealRepository.findById(entry.getKey())
+                                .orElseThrow(() -> new ResourceNotFoundException("Meal not found"))
+                                .getName(),
+                        entry -> new OrderMealDetail(
+                                mealRepository.findById(entry.getKey())
+                                        .orElseThrow(() -> new ResourceNotFoundException("Meal not found"))
+                                        .getPrice(),
+                                entry.getValue()
+                        )
                 ));
         response.setMealDetails(mealDetails);
 
         return ResponseEntity.ok(response);
+    }
+
+    @Override
+    public IncomeReportResponse getIncomeReport() {
+        LocalDateTime now = LocalDateTime.now();
+
+        // Günlük gəlir
+        double dailyIncome = orderRepository.findByStatusAndOrderTimeBetween(
+                OrderStatus.COMPLETED,
+                now.truncatedTo(ChronoUnit.DAYS),
+                now
+        ).stream().mapToDouble(OrderEntity::getTotalPrice).sum();
+
+        // Həftəlik gəlir
+        double weeklyIncome = orderRepository.findByStatusAndOrderTimeBetween(
+                OrderStatus.COMPLETED,
+                now.minusDays(7),
+                now
+        ).stream().mapToDouble(OrderEntity::getTotalPrice).sum();
+
+        // Aylıq gəlir
+        double monthlyIncome = orderRepository.findByStatusAndOrderTimeBetween(
+                OrderStatus.COMPLETED,
+                now.minusMonths(1),
+                now
+        ).stream().mapToDouble(OrderEntity::getTotalPrice).sum();
+
+        // İllik gəlir
+        double yearlyIncome = orderRepository.findByStatusAndOrderTimeBetween(
+                OrderStatus.COMPLETED,
+                now.minusYears(1),
+                now
+        ).stream().mapToDouble(OrderEntity::getTotalPrice).sum();
+
+        // DTO ilə cavab göndəririk
+        IncomeReportResponse response = new IncomeReportResponse();
+        response.setDailyIncome(dailyIncome);
+        response.setWeeklyIncome(weeklyIncome);
+        response.setMonthlyIncome(monthlyIncome);
+        response.setYearlyIncome(yearlyIncome);
+
+        return response;
+    }
+
+    @Override
+    public void delete(Long orderId) {
+        OrderEntity order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
+
+        orderRepository.delete(order);
     }
 
 }

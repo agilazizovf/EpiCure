@@ -2,10 +2,14 @@ package com.epicure.project.service.impl;
 
 import com.epicure.project.dao.entity.AdminEntity;
 import com.epicure.project.dao.entity.AuthorityEntity;
+import com.epicure.project.dao.entity.OrderEntity;
 import com.epicure.project.dao.entity.UserEntity;
 import com.epicure.project.dao.repository.AdminRepository;
+import com.epicure.project.dao.repository.OrderRepository;
 import com.epicure.project.dao.repository.UserRepository;
 import com.epicure.project.model.ExceptionDTO;
+import com.epicure.project.model.dto.response.IncomeReportResponse;
+import com.epicure.project.model.enums.OrderStatus;
 import com.epicure.project.model.exception.AlreadyExistsException;
 import com.epicure.project.model.dto.request.AdminRequest;
 import com.epicure.project.model.dto.request.LoginRequest;
@@ -26,6 +30,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Set;
 
 @Service
@@ -74,7 +79,6 @@ public class AdminServiceImpl implements AdminService {
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
-
 
 
     @Override
