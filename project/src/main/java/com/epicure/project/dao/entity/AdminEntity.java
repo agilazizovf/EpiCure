@@ -1,6 +1,7 @@
 package com.epicure.project.dao.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,6 +22,8 @@ public class AdminEntity {
 
     private String username;
 
+    @Email
+    @Column(unique = true)
     private String email;
 
     private LocalDateTime registerDate;
